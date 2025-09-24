@@ -40,7 +40,14 @@ struct ContentView: View {
 
                                 ServicesSection(services: bundle.snapshot.services)
 
-                                ShellySection(payload: bundle.shelly)
+                                ShellySection(
+                                    payload: bundle.shelly,
+                                    isProcessing: { viewModel.isShellyOperationInProgress(for: $0) },
+                                    controlError: { viewModel.shellyError(for: $0) },
+                                    onToggle: { device in
+                                        await viewModel.toggleShellyDevice(device)
+                                    }
+                                )
                             }
                             .padding(.horizontal)
                             .padding(.vertical, 24)
@@ -406,6 +413,9 @@ private struct ServiceRow: View {
 
 private struct ShellySection: View {
     let payload: ShellyPayload
+    let isProcessing: (ShellyDevice.ID) -> Bool
+    let controlError: (ShellyDevice.ID) -> String?
+    let onToggle: (ShellyDevice) async -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -428,7 +438,14 @@ private struct ShellySection: View {
                     .foregroundColor(.secondary)
             } else {
                 ForEach(payload.devices) { device in
-                    ShellyRow(device: device)
+                    ShellyRow(
+                        device: device,
+                        isProcessing: isProcessing(device.id),
+                        controlError: controlError(device.id),
+                        onToggle: {
+                            await onToggle(device)
+                        }
+                    )
 
                     if device.id != payload.devices.last?.id {
                         Divider()
@@ -436,7 +453,7 @@ private struct ShellySection: View {
                 }
             }
 
-            Text("Przełączanie przekaźników wymaga tokenu CSRF z panelu WWW – aplikacja prezentuje tylko odczyty stanu.")
+            Text("Zmiany stanu są wysyłane bezpośrednio do urządzeń Shelly – dane zostaną automatycznie odświeżone.")
                 .font(.footnote)
                 .foregroundColor(.secondary)
         }
@@ -447,14 +464,21 @@ private struct ShellySection: View {
 
 private struct ShellyRow: View {
     let device: ShellyDevice
+    let isProcessing: Bool
+    let controlError: String?
+    let onToggle: () async -> Void
+
+    private var canControl: Bool {
+        device.allowsControl && device.ok && (device.error?.isEmpty ?? true)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
             HStack(alignment: .firstTextBaseline) {
                 VStack(alignment: .leading, spacing: 4) {
                     Text(device.label)
                         .font(.subheadline.weight(.semibold))
-                    Text(device.description ?? device.state.capitalized)
+                    Text(device.description ?? (device.isOn ? "Włączone" : "Wyłączone"))
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -466,6 +490,45 @@ private struct ShellyRow: View {
 
             if let error = device.error, !error.isEmpty {
                 Text(error)
+                    .font(.caption)
+                    .foregroundColor(.red)
+            }
+
+            if device.allowsControl {
+                HStack {
+                    Label(device.isOn ? "Włączone" : "Wyłączone", systemImage: device.isOn ? "power.circle.fill" : "power.circle")
+                        .font(.caption)
+                        .foregroundColor(device.isOn ? .green : .secondary)
+
+                    Spacer()
+
+                    if isProcessing {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .controlSize(.small)
+                            .tint(.accentColor)
+                    } else {
+                        Button {
+                            Task { await onToggle() }
+                        } label: {
+                            Label(
+                                device.isOn ? "Wyłącz" : "Włącz",
+                                systemImage: device.isOn ? "power.circle.fill" : "power.circle"
+                            )
+                            .fontWeight(.semibold)
+                        }
+                        .buttonStyle(.borderedProminent)
+                        .disabled(!canControl)
+                    }
+                }
+            } else {
+                Text("Sterowanie tym urządzeniem nie jest dostępne.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+
+            if let controlError, !controlError.isEmpty {
+                Text(controlError)
                     .font(.caption)
                     .foregroundColor(.red)
             }
