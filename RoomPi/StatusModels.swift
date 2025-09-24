@@ -281,8 +281,8 @@ extension StatusBundle {
                     error: nil,
                     ok: true,
                     control: .init(
-                        turnOn: URL(string: "https://example.com/boiler/on"),
-                        turnOff: URL(string: "https://example.com/boiler/off"),
+                        turnOn: URL(string: "https://192.168.0.122/on"),
+                        turnOff: URL(string: "https://e192.168.0.122/off"),
                         toggle: nil
                     ),
                     supportsControl: true

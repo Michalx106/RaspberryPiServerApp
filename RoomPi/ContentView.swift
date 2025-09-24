@@ -42,8 +42,8 @@ struct ContentView: View {
 
                                 ShellySection(
                                     payload: bundle.shelly,
-                                    isProcessing: { viewModel.isShellyOperationInProgress(for: $0) },
-                                    controlError: { viewModel.shellyError(for: $0) },
+                                    isProcessing: { id in $viewModel.isShellyOperationInProgress(for: id) },
+                                    controlError: { id in viewModel.shellyError(for: id) },
                                     onToggle: { device in
                                         await viewModel.toggleShellyDevice(device)
                                     }
