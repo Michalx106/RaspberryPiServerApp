@@ -149,7 +149,18 @@ struct ShellyDevice: Decodable, Identifiable, Equatable {
     let supportsControl: Bool?
 
     var isOn: Bool {
-        state.lowercased() == "on"
+        let normalizedState = state
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+
+        switch normalizedState {
+        case "on", "true", "1", "open":
+            return true
+        case "off", "false", "0", "close", "closed":
+            return false
+        default:
+            return normalizedState.hasPrefix("on")
+        }
     }
 
     var allowsControl: Bool {
