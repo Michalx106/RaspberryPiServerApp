@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 import SwiftUI
 
 @MainActor
@@ -19,10 +20,6 @@ final class StatusDashboardViewModel: ObservableObject {
         self.fallbackInterval = fallbackInterval
         self.bundle = initialBundle
         self.lastUpdate = initialBundle?.serverDate ?? initialBundle?.generatedAt
-    }
-
-    deinit {
-        stop()
     }
 
     func start() {

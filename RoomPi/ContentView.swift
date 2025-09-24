@@ -1,12 +1,19 @@
 import SwiftUI
 
-private let BASE_URL = URL(string: "http://192.168.0.151")!
+private enum AppConfig {
+    static let baseURL = URL(string: "http://192.168.0.151")!
+}
 
+@MainActor
 struct ContentView: View {
     @StateObject private var viewModel: StatusDashboardViewModel
     @State private var selectedMetric: HistoryMetric = .cpuTemperature
 
-    init(viewModel: StatusDashboardViewModel = StatusDashboardViewModel(service: StatusService(baseURL: BASE_URL))) {
+    init() {
+        _viewModel = StateObject(wrappedValue: StatusDashboardViewModel(service: StatusService(baseURL: AppConfig.baseURL)))
+    }
+
+    init(viewModel: StatusDashboardViewModel) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
@@ -71,7 +78,7 @@ struct ContentView: View {
 
             if let lastUpdate = viewModel.lastUpdate {
                 Label {
-                    Text("Ostatnia aktualizacja: \(Formatters.fullDate.string(from: lastUpdate)) (") + Text(Formatters.relativeFormatter.localizedString(for: lastUpdate, relativeTo: Date())).italic() + Text(")")
+                    Text("Ostatnia aktualizacja: \(Formatters.fullDate.string(from: lastUpdate)) (\(Text(Formatters.relativeFormatter.localizedString(for: lastUpdate, relativeTo: Date())).italic()))")
                 } icon: {
                     Image(systemName: "clock.arrow.2.circlepath")
                         .foregroundColor(.accentColor)
@@ -254,7 +261,7 @@ private struct HistoryChartView: View {
                             .fill(metric.accentColor.opacity(0.18))
 
                         linePath(from: normalized)
-                            .stroke(metric.accentColor, style: StrokeStyle(lineWidth: 2, lineJoin: .round, lineCap: .round))
+                            .stroke(metric.accentColor, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
 
                         ForEach(Array(normalized.enumerated()), id: \.offset) { element in
                             Circle()
@@ -614,7 +621,7 @@ private extension ServiceStatus {
 
 #Preview {
     ContentView(viewModel: StatusDashboardViewModel(
-        service: StatusService(baseURL: BASE_URL),
+        service: StatusService(baseURL: AppConfig.baseURL),
         initialBundle: .preview
     ))
 }
