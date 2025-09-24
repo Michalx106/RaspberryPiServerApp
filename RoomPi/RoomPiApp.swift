@@ -10,8 +10,6 @@ import SwiftUI
 @main
 struct RoomPiApp: App {
     var body: some Scene {
-        WindowGroup {
-            ContentView()
+            WindowGroup { ContentView() }
         }
-    }
 }
