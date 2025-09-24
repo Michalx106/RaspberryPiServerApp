@@ -127,12 +127,42 @@ struct ShellyPayload: Decodable, Equatable {
 }
 
 struct ShellyDevice: Decodable, Identifiable, Equatable {
+    struct Control: Decodable, Equatable {
+        let turnOn: URL?
+        let turnOff: URL?
+        let toggle: URL?
+
+        enum CodingKeys: String, CodingKey {
+            case turnOn = "turn_on"
+            case turnOff = "turn_off"
+            case toggle
+        }
+    }
+
     let id: String
     let label: String
     let state: String
     let description: String?
     let error: String?
     let ok: Bool
+    let control: Control?
+    let supportsControl: Bool?
+
+    var isOn: Bool {
+        state.lowercased() == "on"
+    }
+
+    var allowsControl: Bool {
+        if let supportsControl {
+            return supportsControl
+        }
+
+        if let control {
+            return control.toggle != nil || (control.turnOn != nil && control.turnOff != nil)
+        }
+
+        return true
+    }
 }
 
 enum HistoryMetric: String, CaseIterable, Identifiable {
@@ -243,8 +273,34 @@ extension StatusBundle {
             count: 2,
             hasErrors: false,
             devices: [
-                ShellyDevice(id: "boiler", label: "Boiler", state: "on", description: "Włączone", error: nil, ok: true),
-                ShellyDevice(id: "gate", label: "Brama", state: "off", description: "Wyłączone", error: nil, ok: true)
+                ShellyDevice(
+                    id: "boiler",
+                    label: "Boiler",
+                    state: "on",
+                    description: "Włączone",
+                    error: nil,
+                    ok: true,
+                    control: .init(
+                        turnOn: URL(string: "https://example.com/boiler/on"),
+                        turnOff: URL(string: "https://example.com/boiler/off"),
+                        toggle: nil
+                    ),
+                    supportsControl: true
+                ),
+                ShellyDevice(
+                    id: "gate",
+                    label: "Brama",
+                    state: "off",
+                    description: "Wyłączone",
+                    error: nil,
+                    ok: true,
+                    control: .init(
+                        turnOn: URL(string: "https://example.com/gate/on"),
+                        turnOff: URL(string: "https://example.com/gate/off"),
+                        toggle: nil
+                    ),
+                    supportsControl: true
+                )
             ],
             configError: false,
             httpStatus: 200,
