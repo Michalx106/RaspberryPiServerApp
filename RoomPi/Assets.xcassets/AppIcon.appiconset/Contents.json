@@ -1,6 +1,7 @@
 {
   "images" : [
     {
+      "filename" : "RoomPiWhite.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"
@@ -12,6 +13,7 @@
           "value" : "dark"
         }
       ],
+      "filename" : "RoomPi.png",
       "idiom" : "universal",
       "platform" : "ios",
       "size" : "1024x1024"

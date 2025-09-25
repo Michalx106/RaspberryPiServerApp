@@ -1,5 +1,6 @@
 import SwiftUI
 import WebKit
+import Combine
 
 /// Obserwator motywu strony internetowej renderowanej w widoku WWW.
 final class WebThemeObserver: ObservableObject {
@@ -226,3 +227,4 @@ private extension AdaptiveWebView {
         return WKUserScript(source: source, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
     }
 }
+
