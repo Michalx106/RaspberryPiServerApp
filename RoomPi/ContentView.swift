@@ -9,6 +9,7 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             AdaptiveWebView(url: dashboardURL, themeObserver: themeObserver)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .ignoresSafeArea()
 
             if themeObserver.isLoading {
@@ -18,7 +19,8 @@ struct ContentView: View {
                     .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16, style: .continuous))
             }
         }
-        .background(Color(.systemBackground))
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(Color(.systemBackground).ignoresSafeArea())
         .preferredColorScheme(themeObserver.colorScheme)
     }
 }
