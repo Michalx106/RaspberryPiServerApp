@@ -80,7 +80,6 @@ extension AdaptiveWebView {
         func loadIfNeeded() {
             guard let webView = webView, !isInitialLoadPerformed else { return }
             isInitialLoadPerformed = true
-            parent.themeObserver.isLoading = true
             let request = URLRequest(url: parent.url, cachePolicy: .reloadRevalidatingCacheData)
             webView.load(request)
         }
