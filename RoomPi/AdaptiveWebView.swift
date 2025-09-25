@@ -43,6 +43,8 @@ struct AdaptiveWebView: UIViewRepresentable {
         webView.navigationDelegate = context.coordinator
         webView.allowsBackForwardNavigationGestures = true
         webView.scrollView.contentInsetAdjustmentBehavior = .never
+        webView.scrollView.contentInset = .zero
+        webView.scrollView.scrollIndicatorInsets = .zero
 
         context.coordinator.connect(webView: webView, userContentController: userContentController)
         context.coordinator.loadIfNeeded()
