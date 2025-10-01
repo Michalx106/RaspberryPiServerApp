@@ -1,5 +1,8 @@
 import SwiftUI
 
+#Preview {
+    ContentView()
+}
 /// Główny widok aplikacji wyświetlający zawartość panelu WWW.
 struct ContentView: View {
     private let dashboardURL = URL(string: "http://192.168.0.151/")!
@@ -24,3 +27,4 @@ struct ContentView: View {
         .preferredColorScheme(themeObserver.colorScheme)
     }
 }
+
